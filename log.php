@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($password, $user['password_hash'])) {
                 session_start();
                 $_SESSION['email'] = $email;
+                $_SESSION['jwt'] = jwt($email);
                 echo "Connexion réussie!";
                 exit();
             } else {
@@ -29,7 +30,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
+function jwt($email) {
+    $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
+    $payload = json_encode(['email' => $email, 'exp' => time() + 3600]);
+    $base64UrlHeader = base64_encode($header);
+    $base64UrlPayload = base64_encode($payload);
+    $signature = hash_hmac('sha256', "$base64UrlHeader.$base64UrlPayload", 'secret_key', true);
+    $base64UrlSignature =base64_encode($signature);
+    return "$base64UrlHeader.$base64UrlPayload.$base64UrlSignature";
+}
 ?>
 
 <html>
