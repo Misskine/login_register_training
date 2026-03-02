@@ -1,24 +1,23 @@
 <?php 
 $connection = mysqli_connect("localhost", "root", "", "data");
 if (!$connection) {
-    die("Connection failed: " . mysqli_connect_error());
+    die("Connexion échouée: " . mysqli_connect_error());
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     if (empty($email) || empty($password)) {
-        echo "Email and password are required.";
+        echo "emaail et mot de passe sont requis.";
         exit;
     }
     if (!filtrerpassword($password)) {
-        echo "Password must be at least 8 characters long and contain a mix of letters and numbers.";
+        echo "";
         exit;
     }
 
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-    // Check if email already exists
     $check_sql = "SELECT email FROM users WHERE email = ?";
     $check_stmt = mysqli_prepare($connection, $check_sql);
     mysqli_stmt_bind_param($check_stmt, "s", $email);
@@ -26,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = mysqli_stmt_get_result($check_stmt);
     
     if (mysqli_num_rows($result) > 0) {
-        echo "Email already registered. Please use a different email.";
+        echo "Email déja utilisé. utilisez un autre email.";
         mysqli_stmt_close($check_stmt);
         exit;
     }
@@ -37,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mysqli_stmt_bind_param($stmt, "ss", $email, $password_hash);
     
     if (mysqli_stmt_execute($stmt)) {
-        echo "Registration successful!";
+        echo "inscription réussite!";
         header("Location: log.php");
         exit();
     } else {
@@ -58,10 +57,10 @@ function filtrerpassword($password) {
 ?>
 <html>
 <head>
-    <title>Registration</title>     
+    <title>inscription</title>     
 </head>
 <body>
-    <h2>Registration Form</h2>
+    <h2>inscription</h2>
     <form method="post" action="reg.php">
         <label for="email">Email:</label><br>
         <input type="email" id="email" name="email"><br><br>

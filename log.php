@@ -1,47 +1,42 @@
 <?php 
 $connection = mysqli_connect("localhost", "root", "", "data");
 if (!$connection) {
-    die("Connection failed: " . mysqli_connect_error());
+    die("Connexion échouée: " . mysqli_connect_error());
 }
 
-$email = $_POST['email'] ?? '';
-$password = $_POST['password'] ?? '';
+$email = $_POST['email'];
+$password = $_POST['password'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || empty($password)) {
-        $error = "Email and password are required.";
-    } else {
-        $sql = "SELECT * FROM users WHERE email = ?";
-        $stmt = mysqli_prepare($connection, $sql);
-        mysqli_stmt_bind_param($stmt, "s", $email);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        if (mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
-            if (isset($row['password_hash']) && password_verify($password, $row['password_hash'])) {
+        $error = "Email et mot de passe sont requis.";
+    } else{
+        $sql = "SELECT * FROM users WHERE email = '$email'";
+        $result = mysqli_query($connection, $sql);
+        if (mysqli_num_rows($result) === 1) {
+            $user = mysqli_fetch_assoc($result);
+            if (password_verify($password, $user['password_hash'])) {
                 session_start();
-                $_SESSION['user_id'] = $row['id'];
-                $_SESSION['email'] = $row['email'];
+                $_SESSION['email'] = $email;
                 header("Location: index.php");
                 exit();
             } else {
-                $error = "Invalid email or password.";
+                $error = "Mot de passe incorrect.";
             }
         } else {
-            $error = "Invalid email or password.";
+            $error = "Email non trouvé.";
         }
-        mysqli_stmt_close($stmt);
     }
 }
+
 ?>
 
 <html>
 <head>
-    <title>Login</title>    
+    <title>Connexion</title>    
 </head>
 <body>
-    <h2>Login</h2>
+    <h2>connexion</h2>
     <form method="POST" action="log.php">
         <label for="email">Email:</label><br>
         <input type="email" id="email" name="email" required><br><br>
