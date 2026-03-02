@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 $connection = mysqli_connect("localhost", "root", "", "data");
 if (!$connection) {
     die("Connexion échouée: " . mysqli_connect_error());
@@ -18,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($password, $user['password_hash'])) {
                 session_start();
                 $_SESSION['email'] = $email;
-                header("Location: index.php");
+                echo "Connexion réussie!";
                 exit();
             } else {
                 $error = "Mot de passe incorrect.";
